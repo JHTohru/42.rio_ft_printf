@@ -1,5 +1,6 @@
 #include "libft.h"
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 typedef struct s_convspec {
@@ -14,238 +15,170 @@ typedef struct s_convspec {
 	unsigned char	flag_dot: 1;
 }	t_convspec;
 
-char	*strnchar(char c, size_t len)
+
+unsigned int	ft_upow(unsigned int b, unsigned int e)
 {
-	return (ft_memset(ft_strnew(len + 1), c, len + 1));
-}
+	int	n;
 
-char	*strjoindel(char **str1, char **str2)
-{
-	char	*str;
-
-	str = ft_strjoin(*str1, *str2);
-	ft_strdel(str1);
-	ft_strdel(str2);
-	return (str);
-}
-
-void	strprefix(char *pref, char **str)
-{
-	char	*tmp;
-
-	tmp = ft_strjoin(pref, *str);
-	ft_strdel(str);
-	*str = tmp;
-}
-
-void	strpadl(char **str, size_t spcnt)
-{
-	char	*pad;
-
-	pad = strnchar(' ', spcnt);
-	*str = strjoindel(&pad, str);
-}
-
-void	strpadr(char **str, size_t spcnt)
-{
-	char	*pad;
-
-	pad = strnchar(' ', spcnt);
-	*str = strjoindel(str, &pad);
-}
-
-void	nbrpad(char **str, size_t n)
-{
-	char	*pad;
-	char	*tmp;
-
-	if (**str == '-')
+	n = 1;
+	while (e > 0)
 	{
-		pad = strnchar('0', n + 1);
-		pad[0] = '-';
+		n *= b;
+		e--;
 	}
+	return (n);
+}
+
+char	*ft_strncpy(char *dst, char* src, size_t len)
+{
+	size_t	i;
+
+	i = 0;
+	while (src[i] != '\0' && i < len)
+	{
+		dst[i] = src[i];
+		i++;
+	}
+	while (i < len)
+		dst[i] = '\0';
+	return (dst);
+}
+
+#define BASESET_DEC "0123456789"
+#define BASESET_HEXL (BASESET_DEC "abcdef")
+#define BASESET_HEXU (BASESET_DEC "ABCDEF")
+
+int	convert_number(char **str, t_convspec *cs, int d)
+{
+	int				padding_left;
+	int				padding_right;
+	int				leading_zeros;
+	int				flag_zero;
+	int				d_is_negative;
+	unsigned int	n;
+	unsigned int	m;
+	int				nlen;
+	unsigned int	magnitude;
+	int				len;
+	int				i;
+	int				j;
+	int				raddix;
+	char			*baseset;
+
+	if (cs->specifier == 'x' || cs->specifier == 'X')
+		raddix = 16;
 	else
-		pad = strnchar('0', n);
-	tmp = NULL;
-	if (pad != NULL)
-	{
-		if (**str == '-')
-			tmp = ft_strjoin(pad, *str + 1);
-		else
-			tmp = ft_strjoin(pad, *str);
-	}
-	ft_strdel(str);
-	*str = tmp;
-}
-
-char	*convert_char(t_convspec *cs, char c)
-{
-	char	*str;
-
-	str = ft_strnew(2);
-	if (str != NULL)
-	{
-		*str = c;
-		if ((size_t)cs->width_min > 1)
-		{
-			if (cs->flag_minus)
-				strpadr(&str, (size_t)cs->width_min - 1);
-			else
-				strpadl(&str, (size_t)cs->width_min - 1);
-		}
-	}
-	return (str);
-}
-
-char	*convert_str(t_convspec *cs, char *src)
-{
-	char	*str;
-	size_t	len;
-
-	if (cs->flag_dot)
-		len = (size_t)cs->precision;
+		raddix = 10;
+	d_is_negative = d < 0;
+	if (d_is_negative)
+		n = -d;
 	else
-		len = ft_strlen(src);
-	str = ft_strndup(src, len);
-	if (str != NULL && (size_t)cs->width_min > len)
+		n = d;
+	nlen = 0;
+	m = n;
+	while(1)
 	{
-		if (cs->flag_minus)
-			strpadr(&str, (size_t)cs->width_min - len);
-		else
-			strpadl(&str, (size_t)cs->width_min - len);
+		nlen++;
+		m /= raddix;
+		if (m == 0)
+			break ;
 	}
-	return (str);
-}
-
-char	*convert_ptr2(void *p, int lmin)
-{
-	char	*str;
-	int		len;
-
-	str = ft_ptoa(p);
-	if (str != NULL)
+	magnitude = ft_upow(raddix, nlen - 1);
+	// printf("1st nlen = %d\n", nlen);
+	leading_zeros = 0;
+	if (cs->flag_dot && cs->precision > nlen)
+		leading_zeros = cs->precision - nlen;
+	padding_left = 0;
+	if (cs->specifier == 'd' || cs->specifier == 'i')
 	{
-		len = (int)ft_strlen(str);
-		if (lmin > len)
-			nbrpad(&str, lmin - len);
-		strprefix("0x", &str);
-	}
-	return (str);
-}
-
-char	*convert_ptr(t_convspec *cs, void *p)
-{
-	char	*str;
-	int		len;
-
-	str = convert_ptr2(p, cs->precision);
-	if (str != NULL)
-	{
-		len = (int)ft_strlen(str);
-		if (cs->width_min > len)
-		{
-			if (cs->flag_minus)
-				strpadr(&str, cs->width_min - len);
-			else
-				strpadl(&str, cs->width_min - len);
-		}
-	}
-	return (str);
-}
-
-char	*convert_int2(int n, int lmin)
-{
-	char	*nbr;
-	int		len;
-
-	nbr = ft_itoa(n);
-	len = (int)ft_strlen(nbr);
-	if (lmin > len)
-		nbrpad(&nbr, lmin - len);
-	return (nbr);
-}
-
-char	*convert_int(t_convspec *cs, int n)
-{
-	char	*nbr;
-	size_t	len;
-	int		lmin;
-
-	lmin = 1;
-	if (cs->flag_dot)
-	{
-		lmin = cs->precision;
-		if (n < 0)
-			lmin++;
-	}
-	else if (cs->flag_zero && !cs->flag_minus)
-		lmin = cs->width_min;
-	nbr = convert_int2(n, lmin);
-	if (n >= 0)
-	{
-		if (cs->flag_plus)
-			strprefix("+", &nbr);
+		if (d_is_negative || cs->flag_plus)
+			nlen++;
 		else if (cs->flag_space)
-			strprefix(" ", &nbr);
+			padding_left++;
 	}
-	len = (int)ft_strlen(nbr);
-	if ((!cs->flag_zero || cs->flag_dot) && (size_t)cs->width_min > len)
+	else if ((cs->specifier == 'x' || cs->specifier == 'X') && cs->flag_hash)
+	{
+		nlen += 2; // preffix length
+	}
+	flag_zero = 0;
+	if (cs->flag_zero && !cs->flag_dot && !cs->flag_minus && cs->width_min > nlen)
+	{
+		flag_zero = 1;
+		leading_zeros = cs->width_min - nlen - padding_left;
+	}
+	nlen += leading_zeros;
+	padding_right = 0;
+	if (cs->width_min > nlen)
 	{
 		if (cs->flag_minus)
-			strpadr(&nbr, cs->width_min - len);
-		else
-			strpadl(&nbr, cs->width_min - len);
+			padding_right = cs->width_min - nlen;
+		else if (!flag_zero)
+			padding_left += cs->width_min - nlen;
 	}
-	return (nbr);
-}
+	len = padding_left + nlen + padding_right;
+	// printf("padding_left = %d\n", padding_left);
+	// printf("padding_right = %d\n", padding_right);
+	// printf("leading_zeros = %d\n", leading_zeros);
+	// printf("nlen = %d\n", nlen);
+	// printf("len = %d\n", len);
+	// printf("size = %d\n", len + 1);
+	*str = malloc((len + 1) * sizeof(char));
+	if (*str != NULL)
+	{	
+		i = 0;
+		while (i < padding_left)
+			(*str)[i++] = ' ';
+		if (cs->specifier == 'd' || cs->specifier == 'i')
+		{
+			if (d_is_negative)
+				(*str)[i++] = '-';
+			else if (cs->flag_plus)
+				(*str)[i++] = '+';
+		}
+		else if (raddix == 16 && cs->flag_hash)
+		{
+			printf("raddix = %d\n", raddix);
 
-char	*convert_uint_dec(t_convspec *cs, unsigned int n)
-{
-	// char	*nbr;
-	// size_t	len;
-
-	// nbr = ft_uitoa(n);
-	// len = ft_strlen(nbr);
-	// if (cs->flag_dot && (size_t)cs->precision > len)
-	// {
-	// 	prependzeroes(&nbr, (size_t)cs->precision - len);
-	// }
-	// else if (!cs->flag_dot && !cs->flag_minus 
-	// 	&& cs->flag_zero && (size_t)cs->width_min > len)
-	// 	prependzeroes(&nbr, (size_t)cs->width_min - len);
-	// return (nbr);
-
-	// todo: code stuff
-	(void)cs;
-	(void)n;
-	return (NULL);
-}
-
-char	*convert_uint_hex(t_convspec *cs, unsigned int n)
-{
-	// todo: code stuff
-	(void)cs;
-	(void)n;
-	return (NULL);
-}
-
-char	*convert(t_convspec *cs, void *arg)
-{
-	char	*str;
-
-	if (cs->specifier == 'c')
-		str = convert_char(cs, *((int *)arg));
-	else if (cs->specifier == 's')
-		str = convert_str(cs, (char *)arg);
-	else if (cs->specifier == 'p')
-		str = convert_ptr(cs, arg);
-	else if (cs->specifier == 'd' || cs->specifier == 'i')
-		str = convert_int(cs, *((int *)arg));
-	else if (cs->specifier == 'u')
-		str = convert_uint_dec(cs, *((unsigned int *)arg));
-	else
-		str = convert_uint_hex(cs, *((unsigned int *)arg));
-	return (str);
+			if (cs->specifier == 'x')
+				ft_strncpy(*str + i, "0x", 2);
+			else
+				ft_strncpy(*str + i, "0X", 2);
+			i += 2;
+		}
+		j = 0;
+		while (j < leading_zeros)
+			(*str)[i + j++] = '0';
+		i += j;
+		m = n;
+		// printf("\n####################\n\n");
+		if (cs->specifier == 'd' || cs->specifier == 'i' || cs->specifier == 'u')
+			baseset = BASESET_DEC;
+		else if (cs->specifier == 'x')
+			baseset = BASESET_HEXL;
+		else // cs->specifier == 'X'
+			baseset = BASESET_HEXU;
+		while (1)
+		{
+			// printf("i = %d\n", i);
+			// printf("m = %d\n", m);
+			// printf("magnitude = %d\n", magnitude);
+			// printf("c = %c\n", m / magnitude + '0');
+			// printf("\n--------------------\n\n");
+			(*str)[i++] = baseset[m / magnitude];
+			m %= magnitude;
+			magnitude /= raddix;
+			if (magnitude == 0)
+				break ;
+		}
+		// printf("\n####################\n\n");
+		j = 0;
+		while (j < padding_right)
+			(*str)[i + j++] = ' ';
+		(*str)[i + j] = '\0'; // desnecessário se str for alocado com calloc
+		if (i + j != len)
+			ft_putendl_fd("OH NO!\n", 2);
+	}
+	return (nlen);
 }
 
 int	isflag(char c)
@@ -269,6 +202,8 @@ int	isspecifier(char c)
 		|| c == 'X');		
 }
 
+// todo: modify the following function to be used by str_to_convspec as a
+//       validator to avoid allocation memory just for a substr duplication
 char	*extract_convspec_str(const char *str)
 {
 	size_t	len;
@@ -327,13 +262,12 @@ t_convspec	*str_to_convspec(char *str)
 	return (cs);
 }
 
-int	put_conversion(t_convspec *cs, void *arg, int fd)
+int	put_number_conversion(t_convspec *cs, int n, int fd)
 {
 	char	*str;
 	int		len;
 
-	str = convert(cs, arg);
-	len = (int)ft_strlen(str);
+	len = convert_number(&str, cs, n);
 	ft_putstr_fd(str, fd);
 	free(str);
 	return (len);
@@ -353,11 +287,21 @@ int	ft_vdprintf(int fd, const char *fmt, va_list ap)
 			cstr = extract_convspec_str(fmt);
 			if (cstr != NULL)
 			{
+				int	len;
+
 				cs = str_to_convspec(cstr);
-				cnt += put_conversion(cs, va_arg(ap, void *), fd);
-				free(cs);
-				fmt += ft_strlen(cstr) + 1;
 				free(cstr);
+				// if (cs->specifier == 'c')
+				// 	cnt += put_char_conversion(str, cs);
+				// if (cs->specifier == 's')
+				// 	cnt += put_string_conversion(str, cs);
+				// if (cs->specifier == 'p')
+				// 	cnt += put_pointer_conversion(str, cs);
+				// else // "diuxX"
+					len = put_number_conversion(cs, va_arg(ap, int), fd);
+				free(cs);
+				cnt += len;
+				fmt += len + 1;
 				continue ;
 			}
 			if (fmt[1] == '%')

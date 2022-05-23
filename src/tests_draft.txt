@@ -1,0 +1,35 @@
+field width:
+    - A field width that is greater than the length of the decimal representation of the int parameter fills it with leading spaces.
+    - A field width that is equal to the length of the decimal representation of the int parameter takes no effect over the conversion.
+    - A field width that is less than the length of the decimal representation of the int parameter takes no effect over the conversion.
+- flag:
+    - A - flag fills a conversion with trailing spaces if its field width value is greater than the length of the decimal representation of the int parameter.
+    - A - flag takes no effect over a conversion which its field width value is equal to the length of the decimal representation of the int parameter.
+    - A - flag takes no effect over a conversion which its field width is less than the length of the decimal representation of the int parameter.
+0 flag:
+    - A zero flag fills a conversion with leading zeros if its field width value is greater than the length of the decimal representation of the int parameter.
+    - A zero flag takes no effect over a conversion which its field width value is equal to the length of the decimal representation of the int parameter.
+    - A zero flag takes no effect over a conversion which its field width value is less than the length of the decimal representation of the int parameter.
+    - When both the 0 and - flags are specified, the 0 flag must be ignored.
+    - When both the 0 and period flag are specified, the 0 flag must be ignored.
+
+space flag:
+    - A space flag prefixes a signed conversion with space if its first character is not a sign.
+    - A space flag prefixes a signed conversion with space if it resulted in no characters.
+    - Flag space takes no effect over negative values
+    - When both the space and + flags are specified, the space flag must be ignored.
++ flag:
+    - Flag plus inserts a plus sign into positive values conversion
+    - Flag plus takes no effect over negative values
+. flag:
+    - A period flag expands a decimal representation with leading zeros if its length is less than the precision value.
+    - A period flag takes no effect over a decimal representation which its length is equal to the precision value.
+    - A period flag takes no effect over a decimal representation which its length is greater than the precision value.
+    - A period specified conversion with both precision and int parameter value as zero writes no character.
+    
+    - A conversion which has a period flag specified but no precision value defaults defaults to precision 1.
+    - A negative precision argument is taken as if the precision were omitted.
+    - If the period flag is speficied without a following non negative decimal integer value, the precision is taken as zero.
+ToDo:
+    - Renomear "dot" para "period", seguindo a documentação oficial.
+    - 

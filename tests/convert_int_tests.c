@@ -1,3 +1,10 @@
+#include "conversion.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+int	convert_int(char **str, t_convspec *cs, int d);
+
 // A converted value which its characters length is less than its field width
 // value must be padded with spaces on the left.
 int	test_00()

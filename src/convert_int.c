@@ -1,29 +1,60 @@
 #include "libft.h"
 #include "conversion.h"
-#include <stdio.h>
 #include <stdlib.h>
 #define BASESET_DEC "0123456789"
 
-// int	ft_strncmp(const char *str1, const char *str2, size_t len)
-// {
-// 	int		diff;
-// 	size_t	i;
+int	ft_abs(int n)
+{
+	if (n < 0)
+		return (-n);
+	return (n);
+}
 
-// 	i = 0;
-// 	while (1)
-// 	{
-// 		diff = (unsigned char)str1[i] - (unsigned char)str2[i];
-// 		if (diff != 0 || str1[i] == '\0' || ++i == len)
-// 			return (diff);
-// 	}
-// }
+unsigned int	digitslen(unsigned int n)
+{
+	unsigned int	len;
 
-unsigned int	upow(unsigned int b, unsigned int e)
+	len = 0;
+	while (1)
+	{
+		len++;
+		n /= 10;
+		if (n == 0)
+			return (len);
+	}
+}
+
+int	write_padding(char *str, unsigned int n)
+{
+	ft_memset((void *)str, ' ', n);
+	return (n);
+}
+
+int	write_zeros(char *str, unsigned int n)
+{
+	ft_memset((void *)str, '0', n);
+	return (n);
+}
+
+int	ft_log(int n, int b)
+{
+	int	log;
+
+	log = 0;
+	while (n > b)
+	{
+		n /= b;
+		log++;
+	}
+	return(log);
+}
+
+int	ft_pow(int b, unsigned int e)
 {
 	int	n;
 
 	n = 1;
-	while (e > 0)
+	while (e != 0)
 	{
 		n *= b;
 		e--;
@@ -31,11 +62,29 @@ unsigned int	upow(unsigned int b, unsigned int e)
 	return (n);
 }
 
-int	ft_abs(int n)
+unsigned int	ft_mag(int n, int b)
 {
-	if (n < 0)
-		return (-n);
-	return (n);
+	return (ft_pow(b, ft_log(n, b)));
+}
+
+int	write_nbr(char *str, int n, char *baseset)
+{
+	unsigned int	rad;
+	unsigned int	mag;
+	unsigned int	i;
+
+	i = 0;
+	rad = (unsigned int)ft_strlen(baseset);
+	mag = ft_mag(n, rad);
+	while (1)
+	{
+		str[i++] = baseset[n / mag];
+		n %= mag;
+		mag /= rad;
+		if (mag == 0)
+			break ;
+	}
+	return (i);
 }
 
 int	convert_int(char **str, t_convspec *cs, int d)
@@ -45,31 +94,14 @@ int	convert_int(char **str, t_convspec *cs, int d)
 	int				leading_zeros;
 	int				flag_zero;
 	unsigned int	n;
-	unsigned int	m;
 	int				nlen;
-	unsigned int	magnitude;
 	int				len;
-	int				i;
-	int				j;
-	char			*baseset;
 
-	if (d < 0)
-		n = -d;
+	n = ft_abs(d);
+	if (n != 0 || !cs->flag_period || cs->precision > 0)
+		nlen = digitslen(n);
 	else
-		n = d;
-	nlen = 0;
-	if (!(n == 0 && cs->flag_period && cs->precision == 0))
-	{
-		m = n;
-		while(1)
-		{
-			nlen++;
-			m /= 10;
-			if (m == 0)
-				break ;
-		}
-		magnitude = upow(10, nlen - 1);
-	}
+		nlen = 0;
 	leading_zeros = 0;
 	if (cs->flag_period && cs->precision > nlen)
 		leading_zeros = cs->precision - nlen;
@@ -78,15 +110,10 @@ int	convert_int(char **str, t_convspec *cs, int d)
 		nlen++;
 	else if (cs->flag_space)
 		padding_left++;
-	flag_zero = 0;
-	if (cs->flag_zero
-		&& !cs->flag_period
-		&& !cs->flag_minus
-		&& cs->field_width > nlen)
-	{
-		flag_zero = 1;
+	flag_zero = cs->flag_zero && !cs->flag_period && !cs->flag_minus
+		&& cs->field_width > nlen;
+	if (flag_zero)
 		leading_zeros = cs->field_width - nlen - padding_left;
-	}
 	nlen += leading_zeros;
 	padding_right = 0;
 	if (cs->field_width > nlen)
@@ -100,36 +127,16 @@ int	convert_int(char **str, t_convspec *cs, int d)
 	*str = malloc((len + 1) * sizeof(char));
 	if (*str != NULL)
 	{	
-		i = 0;
-		while (i < padding_left)
-			(*str)[i++] = ' ';
+		len = write_padding(*str, padding_left);
 		if (d < 0)
-			(*str)[i++] = '-';
+			(*str)[len++] = '-';
 		else if (cs->flag_plus)
-			(*str)[i++] = '+';
-		j = 0;
-		while (j < leading_zeros)
-			(*str)[i + j++] = '0';
-		i += j;
+			(*str)[len++] = '+';
+		len += write_zeros(*str + len, leading_zeros);
 		if (nlen > 0)
-		{
-			m = n;
-			baseset = BASESET_DEC;
-			while (1)
-			{	
-				(*str)[i++] = baseset[m / magnitude];
-				m %= magnitude;
-				magnitude /= 10;
-				if (magnitude == 0)
-					break ;
-			}
-		}
-		j = 0;
-		while (j < padding_right)
-			(*str)[i + j++] = ' ';
-		(*str)[i + j] = '\0';
-		if (i + j != len)
-			ft_putendl_fd("OH NO!\n", 2);
+			len += write_nbr(*str + len, n, BASESET_DEC);
+		len += write_padding(*str + len, padding_right);
+		(*str)[len] = '\0';
 	}
 	return (len);
 }

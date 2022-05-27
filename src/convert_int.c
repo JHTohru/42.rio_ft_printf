@@ -16,27 +16,27 @@ int	write_chars(char *str, int c, int n)
 	return (n);
 }
 
-uint	upow(int b, int e)
+uint	upow(uint b, uint e)
 {
 	uint	p;
 
 	p = 1;
 	while (e != 0)
 	{
-		p *= (uint)b;
+		p *= b;
 		e--;
 	}
 	return (p);
 }
 
-uint	ulog(uint n, int b)
+uint	ulog(uint n, uint b)
 {
 	uint	lg;
 
 	lg = 0;
-	while (n > (uint)b)
+	while (n > b)
 	{
-		n /= (uint)b;
+		n /= b;
 		lg++;
 	}
 	return(lg);

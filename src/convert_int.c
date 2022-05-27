@@ -3,78 +3,10 @@
 #include <stdlib.h>
 #define BASESET_DEC "0123456789"
 
-int	ft_abs(int n)
-{
-	if (n < 0)
-		return (-n);
-	return (n);
-}
-
-int	write_chars(char *str, int c, int n)
-{
-	ft_memset((void *)str, c, (size_t)n);
-	return (n);
-}
-
-uint	upow(uint b, uint e)
-{
-	uint	p;
-
-	p = 1;
-	while (e != 0)
-	{
-		p *= b;
-		e--;
-	}
-	return (p);
-}
-
-uint	ulog(uint n, uint b)
-{
-	uint	lg;
-
-	lg = 0;
-	while (n > b)
-	{
-		n /= b;
-		lg++;
-	}
-	return(lg);
-}
-
-int	uwrite(char *str, uint n, char *baseset)
-{
-	uint	mag;
-	uint	rad;
-	int		i;
-
-	i = 0;
-	rad = (uint)ft_strlen(baseset);
-	mag = upow(rad, ulog(n, rad));
-	while (1)
-	{
-		str[i++] = baseset[n / mag];
-		n %= mag;
-		mag /= rad;
-		if (mag == 0)
-			break ;
-	}
-	return (i);
-}
-
-int	udigits(uint n, int r)
-{
-	int	cnt;
-
-	cnt = 0;
-	while (1)
-	{
-		cnt++;
-		n /= (uint)r;
-		if (n == 0)
-			return (cnt);
-	}
-}
+int	ft_abs(int n);
+int	write_chars(char *str, int c, int n);
+int	uwrite(char *str, unsigned int n, char *baseset);
+int	udigits(unsigned int n, int r);
 
 int	nbrlen(t_convspec *cs, int n)
 {
@@ -83,7 +15,7 @@ int	nbrlen(t_convspec *cs, int n)
 	if (n == 0 && cs->flag_period && cs->precision == 0)
 		len = 0;
 	else
-		len = udigits((uint)ft_abs(n), 10);
+		len = udigits((unsigned int)ft_abs(n), 10);
 	if (cs->flag_period && cs->precision > len)
 		len = cs->precision;
 	if (n < 0 || cs ->flag_plus || cs->flag_space)
@@ -96,7 +28,7 @@ int	write_nbr(char *str, t_convspec *cs, int n)
 	int	i;
 	int	len;
 
-	len = udigits((uint)ft_abs(n), 10);
+	len = udigits((unsigned int)ft_abs(n), 10);
 	i = 0;
 	if (n >= 0 && cs->flag_plus)
 		str[i++] = '+';
@@ -110,7 +42,7 @@ int	write_nbr(char *str, t_convspec *cs, int n)
 	else if (cs->flag_period && cs->precision > len)
 		i += write_chars(str + i, '0', cs->precision - len);
 	if (!cs->flag_period || cs->precision > 0 || n != 0)
-		i += uwrite(str + i, (uint)ft_abs(n), BASESET_DEC);
+		i += uwrite(str + i, (unsigned int)ft_abs(n), BASESET_DEC);
 	return (i);
 }
 

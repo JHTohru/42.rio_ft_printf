@@ -27,7 +27,6 @@ int	write_nbr(char *str, t_convspec *cs, int n)
 {
 	int		len;
 	int		i;
-	char	*baseset;
 
 	if (cs->specifier == 'x' || cs->specifier == 'X')
 		len = udigits(n, 16);
@@ -47,14 +46,13 @@ int	write_nbr(char *str, t_convspec *cs, int n)
 	if (!cs->flag_period || cs->precision != 0 || n != 0)
 	{
 		if (cs->specifier == 'x')
-			baseset = BASESET_HEXL;
+			i += uwrite(str + i, n, BASESET_HEXL);
 		else if (cs->specifier == 'X')
-			baseset = BASESET_HEXU;
+			i += uwrite(str + i, n, BASESET_HEXU);
 		else
-			baseset = BASESET_DEC;
-		i += uwrite(str + i, n, baseset);
+			i += uwrite(str + i, n, BASESET_DEC);
 	}
-	return (i);		
+	return (i);
 }
 
 int	convert_uint(char **str, t_convspec *cs, unsigned int n)

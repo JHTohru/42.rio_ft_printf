@@ -1,3 +1,10 @@
+#include "conversion.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+int	convert_uint(char **str, t_convspec *cs, uint n);
+
 // A converted value which its characters length is less than its field width
 // value must be padded with spaces on the left.
 int	test_00()
@@ -340,6 +347,7 @@ int	test_12()
     cs->specifier = 'x';
     ret = convert_uint(&str, cs, d);
 	res = strcmp(str, expected_str) == 0 && (size_t)ret == strlen(expected_str);
+	printf("expected: \"%s\"\ngot: \"%s\"\n", expected_str, str);
 	printf("test_12: ");
 	if (res)
 		printf("OK!\n");
@@ -1076,44 +1084,44 @@ int	test_38()
 
 int main(void)
 {
-	test_00();
-	test_01();
-	test_02();
-	test_03();
-	test_04();
-	test_05();
-	test_06();
-	test_07();
-	test_08();
-	test_09();
-	test_10();
-	test_11();
+	// test_00();
+	// test_01();
+	// test_02();
+	// test_03();
+	// test_04();
+	// test_05();
+	// test_06();
+	// test_07();
+	// test_08();
+	// test_09();
+	// test_10();
+	// test_11();
 	test_12();
 	test_13();
 	test_14();
 	test_15();
 	test_16();
-	test_17();
-	test_18();
-	test_19();
-	test_20();
-	test_21();
-	test_22();
-	test_23();
-	test_24();
-	test_25();
-	test_26();
-	test_27();
-	test_28();
-	test_29();
-	test_30();
-	test_31();
-	test_32();
-	test_33();
-	test_34();
-	test_35();
-	test_36();
-	test_37();
-	test_38();
+	// test_17();
+	// test_18();
+	// test_19();
+	// test_20();
+	// test_21();
+	// test_22();
+	// test_23();
+	// test_24();
+	// test_25();
+	// test_26();
+	// test_27();
+	// test_28();
+	// test_29();
+	// test_30();
+	// test_31();
+	// test_32();
+	// test_33();
+	// test_34();
+	// test_35();
+	// test_36();
+	// test_37();
+	// test_38();
 	return (0);
 }

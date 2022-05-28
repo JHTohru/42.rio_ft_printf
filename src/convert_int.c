@@ -49,7 +49,7 @@ int	write_nbr(char *str, t_convspec *cs, int n)
 int	convert_int(char **str, t_convspec *cs, int n)
 {
 	int	nlen;
-	int i;
+	int	i;
 
 	nlen = nbrlen(cs, n);
 	if (cs->field_width > nlen)
@@ -67,6 +67,5 @@ int	convert_int(char **str, t_convspec *cs, int n)
 			i += write_chars(*str + i, ' ', cs->field_width - nlen);
 		(*str)[i] = '\0';
 	}
-	// todo: o que retornar quando *str == NULL?
 	return (i);
 }

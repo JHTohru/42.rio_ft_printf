@@ -5,6 +5,8 @@
 #define BASESET_DEC "0123456789"
 #define BASESET_HEXL (BASESET_DEC "abcdef")
 
+int	write_chars(char *str, int c, int n);
+
 int	ptr_digits_cnt(void *p, int r)
 {
 	uintptr_t	n;
@@ -29,7 +31,7 @@ int	ptr_conv_len(t_convspec *cs, void *p)
 		len = 0;
 	else
 		len = ptr_digits_cnt(p, 16);
-	if (cs->flag_period && cs->precision > (unsigned int)len)
+	if (cs->flag_period && cs->precision > len)
 		len = cs->precision;
 	return (len + 2);
 }
@@ -90,12 +92,12 @@ int	write_ptr_conv(char *str, t_convspec *cs, void *p)
 	i = 0;
 	str[i++] = '0';
 	str[i++] = 'x';
-	len = ptr_conv_len(cs, p);
+	len = ptr_digits_cnt(p, 16);
 	if (p != NULL || !cs->flag_period || cs->precision != 0)
 	{
-		if (cs->flag_period && cs->precision > (unsigned int)len)
+		if (cs->flag_period && cs->precision > len)
 			i += write_chars(str + i, '0', cs->precision - len);
-		i += write_ptr(str, p, BASESET_HEXL);
+		i += write_ptr(str + i, p, BASESET_HEXL);
 	}
 	return (i);
 }
@@ -115,7 +117,7 @@ int	convert_ptr(char **str, t_convspec *cs, void *p)
 	{
 		if (cs->field_width > nlen && !cs->flag_minus)
 			i = write_chars(*str, ' ', cs->field_width - nlen);
-		i += write_ptr(*str + i, cs, p);
+		i += write_ptr_conv(*str + i, cs, p);
 		if (cs->field_width > nlen && cs->flag_minus)
 			i += write_chars(*str + i, ' ', cs->field_width - nlen);
 		(*str)[i] = '\0';

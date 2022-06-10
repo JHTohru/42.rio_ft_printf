@@ -5,8 +5,8 @@
 
 typedef struct s_convspec {
 	char			specifier;
-	unsigned int	precision;
-	unsigned int	field_width;
+	int				precision;
+	int				field_width;
 	unsigned char	flag_hash: 1;
 	unsigned char	flag_zero: 1;
 	unsigned char	flag_minus: 1;

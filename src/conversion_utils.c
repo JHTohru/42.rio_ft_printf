@@ -59,7 +59,7 @@ int	uwrite(char *str, unsigned int n, char *baseset)
 	return (i);
 }
 
-int	udigits(unsigned int n, int r) // o nome dessa função pode ser melhor
+int	udigits(unsigned int n, int r) // esse nome não é muito bom.
 {
 	int	cnt;
 

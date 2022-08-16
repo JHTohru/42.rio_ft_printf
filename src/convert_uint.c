@@ -1,81 +1,195 @@
-#include "libft.h"
 #include "conversion.h"
 #include <stdlib.h>
-#define BASESET_DEC "0123456789"
-#define BASESET_HEXL (BASESET_DEC "abcdef")
-#define BASESET_HEXU (BASESET_DEC "ABCDEF")
+#include <unistd.h>
 
-int	write_chars(char *str, int c, int n);
-int	uwrite(char *str, unsigned int n, char *baseset);
-int	udigits(unsigned int n, int r);
-
-int	nbrlen(t_convspec *cs, unsigned int n)
+size_t	ft_strlen(char *str)
 {
-	int	len;
+	size_t	len;
 
 	len = 0;
-	if (!cs->flag_period || cs->precision > 0 || n != 0)
-		len = udigits(n, 10);
-	if (cs->flag_period && cs->precision > len)
-		len = cs->precision;
-	if ((cs->specifier == 'x' || cs->specifier == 'X') && cs->flag_hash)
-		len += 2;
+	while (str[len] != '\0')
+		len++;
 	return (len);
 }
 
-int	write_nbr(char *str, t_convspec *cs, int n)
+int	put_char(char c)
 {
-	int		len;
-	int		i;
-
-	if (cs->specifier == 'x' || cs->specifier == 'X')
-		len = udigits(n, 16);
-	else
-		len = udigits(n, 10);
-	i = 0;
-	if ((cs->specifier == 'x' || cs->specifier == 'X') && cs->flag_hash)
-	{
-		str[i++] = '0';
-		str[i++] = cs->specifier;
-	}
-	if (cs->flag_zero && !cs->flag_period && !cs->flag_minus
-		&& cs->field_width > len + i)
-		i += write_chars(str + i, '0', cs->field_width - len - i);
-	else if (cs->flag_period && cs->precision > len)
-		i += write_chars(str + i, '0', cs->precision - len);
-	if (!cs->flag_period || cs->precision != 0 || n != 0)
-	{
-		if (cs->specifier == 'x')
-			i += uwrite(str + i, n, BASESET_HEXL);
-		else if (cs->specifier == 'X')
-			i += uwrite(str + i, n, BASESET_HEXU);
-		else
-			i += uwrite(str + i, n, BASESET_DEC);
-	}
-	return (i);
+	return ((int)write(1, &c, (int)1));
 }
 
-int	convert_uint(char **str, t_convspec *cs, unsigned int n)
+int	put_n_chars(char c, int n)
 {
-	int	nlen;
+	int	cnt;
+
+	cnt = 0;
+	while (cnt < n)
+		cnt += put_char(c);
+	return (cnt);
+}
+
+int	put_str(char *str)
+{
+	int	cnt;
+
+	cnt = 0;
+	while (*str != '\0')
+		cnt += put_char(*(str++));
+	return (cnt);
+}
+
+static int	cnt_leading_spaces(t_conversion *conv, int nbrlen)
+{
+	if (conv->min_width > nbrlen &&
+		!conv->flag_minus &&
+		(!conv->flag_zero || conv->flag_period))
+		return (conv->min_width - nbrlen);
+	return (0);
+}
+
+static int	cnt_leading_zeroes(t_conversion *conv, int nbrlen, int digitslen)
+{
+	if (conv->min_width > nbrlen &&
+		conv->flag_zero &&
+		!conv->flag_period &&
+		!conv->flag_minus)
+		return (conv->min_width - nbrlen);
+	else if (conv->flag_period &&
+		conv->precision > digitslen)
+		return (conv->precision - digitslen);
+	return (0);
+}
+
+static int	cnt_trailing_spaces(t_conversion *conv, int nbrlen)
+{
+	if (conv->flag_minus && conv->min_width > nbrlen)
+		return (conv->min_width - nbrlen);
+	return (0);
+}
+
+static int	unbrlen(unsigned int u, unsigned int rad)
+{
 	int	i;
 
-	nlen = nbrlen(cs, n);
-	if (cs->field_width > nlen)
-		*str = malloc(cs->field_width + 1);
-	else
-		*str = malloc(nlen + 1);
 	i = 0;
-	if (*str != NULL)
+	while (1)
 	{
-		if (cs->field_width > nlen && (!cs->flag_zero || cs->flag_period)
-			&& !cs->flag_minus)
-			i = write_chars(*str, ' ', cs->field_width - nlen);
-		i += write_nbr(*str + i, cs, n);
-		if (cs->field_width > nlen && cs->flag_minus)
-			i += write_chars(*str + i, ' ', cs->field_width - nlen);
-		(*str)[i] = '\0';
+		i++;
+		u /= rad;
+		if (u == 0)
+			return (i);
 	}
-	// todo: o que retornar quando *str == NULL?
-	return (i);
+}
+
+char	*ft_utoa_base(unsigned int u, char *baseset)
+{
+	char			*str;
+	int				i;
+	unsigned int	rad;
+
+	rad = (unsigned int)ft_strlen(baseset);
+	i = unbrlen(u, rad);
+	str = malloc(i + 1);
+	if (str != NULL)
+	{
+		str[i--] = '\0';
+		while (1)
+		{
+			str[i--] = baseset[u % rad];
+			u /= rad;
+			if (u == 0)
+				break ;
+		}
+	}
+	return (str);
+}
+
+int	convert_uint(t_conversion *conv, unsigned int u)
+{
+	char	*digits;
+	int		convlen;
+	int		digitslen;
+	int		nbrlen;
+	int		zeroescnt;
+
+	digits = ft_utoa_base(u, BASESET_DEC);
+	if (digits == NULL)
+		return (-1);
+	digitslen = (int)ft_strlen(digits);
+	zeroescnt = cnt_leading_zeroes(conv, digitslen, digitslen);
+	nbrlen = digitslen + zeroescnt;
+	convlen = put_n_chars(' ', cnt_leading_spaces(conv, nbrlen));
+	convlen += put_n_chars('0', zeroescnt);
+	convlen += put_str(digits);
+	free(digits);
+	convlen += put_n_chars(' ', cnt_trailing_spaces(conv, nbrlen));
+	return (convlen);
+}
+
+// tests:
+
+t_conversion	*new_conversion(char specifier)
+{
+	t_conversion	*conv;
+
+	conv = malloc(sizeof(t_conversion));
+	conv->specifier = specifier;
+	conv->precision = 1;
+	conv->min_width = 0;
+	conv->flag_hash = 0;
+	conv->flag_zero = 0;
+	conv->flag_minus = 0;
+	conv->flag_space = 0;
+	conv->flag_plus = 0;
+	conv->flag_period = 0;
+	return (conv);
+}
+
+int	main(void)
+{
+    t_conversion	*conv;
+
+	conv = new_conversion('u');
+	convert_uint(conv, 42); // "42"
+	write(1, "\n", 1);
+	free(conv);
+
+	conv = new_conversion('u');
+	conv->min_width = 5;
+	convert_uint(conv, 42); // "   42"
+	write(1, "\n", 1);
+
+	conv = new_conversion('u');
+	conv->min_width = 5;
+	conv->flag_minus = 1;
+	convert_uint(conv, 42); // "42   "
+	write(1, "\n", 1);
+
+	conv = new_conversion('u');
+	conv->min_width = 5;
+	conv->flag_zero = 1;
+	convert_uint(conv, 42); // "00042"
+	write(1, "\n", 1);
+
+	conv = new_conversion('u');
+	conv->flag_period = 1;
+	conv->precision = 5;
+	convert_uint(conv, 42); // "00042"
+	write(1, "\n", 1);
+
+	conv = new_conversion('u');
+	conv->min_width = 10;
+	conv->flag_period = 1;
+	conv->precision = 5;
+	convert_uint(conv, 42); // "     00042"
+	write(1, "\n", 1);
+
+	conv = new_conversion('u');
+	conv->min_width = 10;
+	conv->flag_minus = 1;
+	conv->flag_period = 1;
+	conv->precision = 5;
+	convert_uint(conv, 42); // "00042     "
+	write(1, "\n", 1);
+
+	return (0);
 }

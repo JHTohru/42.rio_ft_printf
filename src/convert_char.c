@@ -1,40 +1,82 @@
-#include "libft.h"
 #include "conversion.h"
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-int	convert_char(char **str, t_convspec *cs, char c)
+int	put_char(char c)
 {
-	int				padding_left;
-	int				padding_right;
-	int				len;
-	int				i;
-	int				j;
+	return ((int)write(1, &c, (int)1));
+}
 
-	padding_left = 0;
-	padding_right = 0;
-	if (cs->field_width > 1)
-	{
-		if (cs->flag_minus)
-			padding_right = cs->field_width - 1;
-		else
-			padding_left += cs->field_width - 1;
-	}
-	len = padding_left + padding_right + 1;
-	*str = malloc((len + 1) * sizeof(char));
-	if (*str != NULL)
-	{
-		i = 0;
-		while (i < padding_left)
-			(*str)[i++] = ' ';
-		(*str)[i++] = c;
-		j = 0;
-		while (j < padding_right)
-			(*str)[i + j++] = ' ';
-		(*str)[i + j] = '\0';
-		if (i + j != len)
-			ft_putendl_fd("OH NO!\n", 2);
-	}
-	return (len);
+int	put_n_chars(char c, int n)
+{
+	int	cnt;
+
+	cnt = 0;
+	while (cnt < n)
+		cnt += put_char(c);
+	return (cnt);
+}
+
+int	convert_char(t_conversion *conv, char c)
+{
+	int	convlen;
+	int	spacescnt;
+
+	spacescnt = 0;
+	if (conv->min_width > 1)
+		spacescnt += conv->min_width - 1;
+	convlen = 0;
+	if (conv->flag_minus)
+		convlen += put_n_chars(' ', spacescnt);
+	convlen += put_char(c);
+	if (!conv->flag_minus)
+		convlen += put_n_chars(' ', spacescnt);
+	return (convlen);
+}
+
+// tests:
+
+t_conversion	*new_conversion(char specifier)
+{
+	t_conversion	*conv;
+
+	conv = malloc(sizeof(t_conversion));
+	conv->specifier = specifier;
+	conv->precision = 1;
+	conv->min_width = 0;
+	conv->flag_hash = 0;
+	conv->flag_zero = 0;
+	conv->flag_minus = 0;
+	conv->flag_space = 0;
+	conv->flag_plus = 0;
+	conv->flag_period = 0;
+	return (conv);
+}
+
+int	main(void)
+{
+    t_conversion	*conv;
+    char			c;
+
+    c = 'x';
+
+	conv = new_conversion('c');
+	convert_char(conv, c); // "x"
+	write(1, "\n", 1);
+	free(conv);
+
+	conv = new_conversion('c');
+	conv->min_width = 5;
+	convert_char(conv, c); // "x    "
+	write(1, "\n", 1);
+	free(conv);
+
+	conv = new_conversion('c');
+	conv->min_width = 5;
+	conv->flag_minus = 1;
+	convert_char(conv, c); // "    x"
+	write(1, "\n", 1);
+	free(conv);
+
+	return (0);
 }

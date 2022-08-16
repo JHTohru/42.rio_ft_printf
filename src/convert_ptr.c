@@ -1,205 +1,151 @@
-#include "libft.h"
 #include "conversion.h"
 #include <stdint.h>
 #include <stdlib.h>
-#define BASESET_DEC "0123456789"
-#define BASESET_HEXL (BASESET_DEC "abcdef")
+#include <unistd.h>
 
-int	write_chars(char *str, int c, int n);
-
-int	ptr_digits_cnt(void *p, int r)
+size_t	ft_strlen(char *str)
 {
-	uintptr_t	n;
-	int			cnt;
+	size_t	len;
 
-	n = (uintptr_t)p;
+	len = 0;
+	while (str[len] != '\0')
+		len++;
+	return (len);
+}
+
+int	put_char(char c)
+{
+	return ((int)write(1, &c, (int)1));
+}
+
+int	put_n_chars(char c, int n)
+{
+	int	cnt;
+
 	cnt = 0;
+	while (cnt < n)
+		cnt += put_char(c);
+	return (cnt);
+}
+
+int	put_str(char *str)
+{
+	int	cnt;
+
+	cnt = 0;
+	while (*str != '\0')
+		cnt += put_char(*(str++));
+	return (cnt);
+}
+
+static int	ptrlen(uintptr_t p, uintptr_t rad)
+{
+	uintptr_t	i;
+
+	i = 0;
 	while (1)
 	{
-		cnt++;
-		n /= (uintptr_t)r;
-		if (n == 0)
-			return (cnt);
+		i++;
+		p /= rad;
+		if (p == 0)
+			return (i);
 	}
 }
 
-int	ptr_conv_len(t_convspec *cs, void *p)
+char	*ft_ptoa_base(uintptr_t p, char *baseset)
 {
-	int	len;
+	char		*str;
+	int			i;
+	uintptr_t	rad;
 
-	if (p == NULL && cs->flag_period && cs->precision == 0)
-		len = 0;
-	else
-		len = ptr_digits_cnt(p, 16);
-	if (cs->flag_period && cs->precision > len)
-		len = cs->precision;
-	return (len + 2);
-}
-
-uintptr_t	uptr_pow(uintptr_t b, unsigned int e)
-{
-	uintptr_t	p;
-
-	p = 1;
-	while (e != 0)
+	rad = (uintptr_t)ft_strlen(baseset);
+	i = ptrlen(p, rad);
+	str = malloc(i + 1);
+	if (str != NULL)
 	{
-		p *= b;
-		e--;
+		str[i--] = '\0';
+		while (1)
+		{
+			str[i--] = baseset[p % rad];
+			p /= rad;
+			if (p == 0)
+				break ;
+		}
 	}
-	return (p);
+	return (str);
 }
 
-unsigned int	uptr_log(uintptr_t n, unsigned int b)
+int	convert_ptr(t_conversion *conv, uintptr_t p)
 {
-	unsigned int	lg;
+	char	*digits;
+	int		convlen;
+	int		nbrlen;
+	int		spacescnt;
 
-	lg = 0;
-	while (n > b)
-	{
-		n /= b;
-		lg++;
-	}
-	return (lg);
+	digits = ft_ptoa_base(p, BASESET_HEXL);
+	if (digits == NULL)
+		return (-1);
+	nbrlen = (int)ft_strlen(digits) + 2;
+	spacescnt = 0;
+	if (conv->min_width > nbrlen)
+		spacescnt = conv->min_width - nbrlen;
+	convlen = 0;
+	if (conv->flag_minus)
+		convlen += put_n_chars(' ', spacescnt);
+	convlen += put_str("0x");
+	convlen += put_str(digits);
+	free(digits);
+	if (!conv->flag_minus)
+		convlen += put_n_chars(' ', spacescnt);
+	return (convlen);
 }
 
-int	write_ptr(char *str, void *p, char *baseset)
+// tests:
+
+t_conversion	*new_conversion(char specifier)
 {
-	uintptr_t		n;
-	uintptr_t		mag;
-	unsigned int	rad;
-	int				i;
+	t_conversion	*conv;
 
-	i = 0;
-	rad = (unsigned int)ft_strlen(baseset);
-	n = (uintptr_t)p;
-	mag = uptr_pow(rad, uptr_log(n, rad));
-	while (1)
-	{
-		str[i++] = baseset[n / mag];
-		n %= mag;
-		mag /= rad;
-		if (mag == 0)
-			break ;
-	}
-	return (i);
+	conv = malloc(sizeof(t_conversion));
+	conv->specifier = specifier;
+	conv->precision = 1;
+	conv->min_width = 0;
+	conv->flag_hash = 0;
+	conv->flag_zero = 0;
+	conv->flag_minus = 0;
+	conv->flag_space = 0;
+	conv->flag_plus = 0;
+	conv->flag_period = 0;
+	return (conv);
 }
 
-int	write_ptr_conv(char *str, t_convspec *cs, void *p)
+int	main(void)
 {
-	int	len;
-	int	i;
+    t_conversion	*conv;
+    uintptr_t		p;
 
-	i = 0;
-	str[i++] = '0';
-	str[i++] = 'x';
-	len = ptr_digits_cnt(p, 16);
-	if (p != NULL || !cs->flag_period || cs->precision != 0)
-	{
-		if (cs->flag_period && cs->precision > len)
-			i += write_chars(str + i, '0', cs->precision - len);
-		i += write_ptr(str + i, p, BASESET_HEXL);
-	}
-	return (i);
+	conv = new_conversion('p');
+	convert_ptr(conv, 0); // "0x0"
+	write(1, "\n", 1);
+	free(conv);
+
+    p = 3735928559;
+
+	conv = new_conversion('p');
+	convert_ptr(conv, p); // "0xdeadbeef"
+	write(1, "\n", 1);
+	free(conv);
+
+	conv = new_conversion('p');
+	conv->min_width = 13;
+	convert_ptr(conv, p); // "   0xdeadbeef"
+	write(1, "\n", 1);
+
+	conv = new_conversion('p');
+	conv->min_width = 13;
+	conv->flag_minus = 1;
+	convert_ptr(conv, p); // "0xdeadbeef   "
+	write(1, "\n", 1);
+
+	return (0);
 }
-
-int	convert_ptr(char **str, t_convspec *cs, void *p)
-{
-	int	nlen;
-	int	i;
-
-	nlen = ptr_conv_len(cs, p);
-	if (cs->field_width > nlen)
-		*str = malloc(cs->field_width + 1);
-	else
-		*str = malloc(nlen + 1);
-	i = 0;
-	if (*str != NULL)
-	{
-		if (cs->field_width > nlen && !cs->flag_minus)
-			i = write_chars(*str, ' ', cs->field_width - nlen);
-		i += write_ptr_conv(*str + i, cs, p);
-		if (cs->field_width > nlen && cs->flag_minus)
-			i += write_chars(*str + i, ' ', cs->field_width - nlen);
-		(*str)[i] = '\0';
-	}
-	return (i);
-}
-
-// int	convert_ptr(char **str, t_convspec *cs, void *p)
-// {
-// 	int				padding_left;
-// 	int				padding_right;
-// 	int				leading_zeros;
-// 	int				nlen;
-// 	uintptr_t		n;
-// 	uintptr_t		magnitude;
-// 	int				len;
-// 	int				i;
-// 	int				j;
-// 	char			*baseset;
-// 	char			*prefix;
-// 	int				prefix_len;
-
-// 	nlen = 0;
-// 	if (!(p ==(void *) 0 && cs->flag_period && cs->precision == 0))
-// 	{
-// 		n = (uintptr_t)p;
-// 		while(1)
-// 		{
-// 			nlen++;
-// 			n /= 16;
-// 			if (n == 0)
-// 				break ;
-// 		}
-// 		magnitude = ptrpow(16, nlen - 1);
-// 	}
-// 	leading_zeros = 0;
-// 	if (cs->flag_period && cs->precision > nlen)
-// 		leading_zeros = cs->precision - nlen;
-// 	nlen += leading_zeros;
-// 	prefix = "0x";
-// 	prefix_len = (int)ft_strlen(prefix);
-// 	padding_left = 0;
-// 	padding_right = 0;
-// 	if (cs->field_width > nlen + prefix_len)
-// 	{
-// 		if (cs->flag_minus)
-// 			padding_right = cs->field_width - nlen - prefix_len;
-// 		else
-// 			padding_left += cs->field_width - nlen - prefix_len;
-// 	}
-// 	len = padding_left + prefix_len + nlen + padding_right;
-// 	*str = malloc((len + 1) * sizeof(char));
-// 	if (*str != NULL)
-// 	{
-// 		i = 0;
-// 		while (i < padding_left)
-// 			(*str)[i++] = ' ';
-// 		(*str)[i++] = '0';
-// 		(*str)[i++] = 'x';
-// 		j = 0;
-// 		while (j < leading_zeros)
-// 			(*str)[i + j++] = '0';
-// 		i += j;
-// 		if (nlen > 0)
-// 		{
-// 			baseset = BASESET_HEXL;
-// 			n = (uintptr_t)p;
-// 			while (1)
-// 			{
-// 				(*str)[i++] = baseset[n / magnitude];
-// 				n %= magnitude;
-// 				magnitude /= 16;
-// 				if (magnitude == 0)
-// 					break ;
-// 			}
-// 		}
-// 		j = 0;
-// 		while (j < padding_right)
-// 			(*str)[i + j++] = ' ';
-// 		(*str)[i + j] = '\0';
-// 		if (i + j != len)
-// 			ft_putendl_fd("OH NO!\n", 2);
-// 	}
-// 	return (len);
-// }

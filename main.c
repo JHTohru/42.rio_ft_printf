@@ -3,7 +3,12 @@
 
 int	main(void)
 {
-	ft_printf("%d\n", 123);
+	ft_printf("%d\n", 123); // "123"
+	ft_printf("%x\n", 3735928559); // "deadbeef"
+	ft_printf("%X\n", 3735928559); // "DEADBEEF"
+	ft_printf("%#x\n", 3735928559); // "0xdeadbeef"
+	ft_printf("%#X\n", 3735928559); // "0XDEADBEEF"
+	ft_printf("hello\n");
 	return (0);
 }
 

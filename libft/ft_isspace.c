@@ -1,31 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   convert_char.c                                     :+:      :+:    :+:   */
+/*   ft_isspace.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/20 13:35:18 by jmenezes          #+#    #+#             */
-/*   Updated: 2022/08/20 17:05:04 by jmenezes         ###   ########.fr       */
+/*   Created: 2022/08/20 16:54:44 by jmenezes          #+#    #+#             */
+/*   Updated: 2022/08/20 16:54:49 by jmenezes         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "conversion.h"
-#include "libft.h"
-
-int	convert_char(t_conversion *conv, char c)
+int	ft_isspace(int c)
 {
-	int	convlen;
-	int	spacescnt;
-
-	spacescnt = 0;
-	if (conv->min_width > 1)
-		spacescnt += conv->min_width - 1;
-	convlen = 0;
-	if (conv->flag_minus)
-		convlen += (int)ft_putnchars(' ', spacescnt);
-	convlen += (int)ft_putchar(c);
-	if (!conv->flag_minus)
-		convlen += (int)ft_putnchars(' ', spacescnt);
-	return (convlen);
+	return (c == ' '
+		|| c == '\f'
+		|| c == '\n'
+		|| c == '\r'
+		|| c == '\t'
+		|| c == '\v');
 }

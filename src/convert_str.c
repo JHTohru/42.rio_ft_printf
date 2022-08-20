@@ -1,41 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   convert_str.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/20 13:49:36 by jmenezes          #+#    #+#             */
+/*   Updated: 2022/08/20 18:41:08 by jmenezes         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "conversion.h"
-#include <stdlib.h>
-#include <unistd.h>
-
-size_t	ft_strlen(char *str)
-{
-	size_t	len;
-
-	len = 0;
-	while (str[len] != '\0')
-		len++;
-	return (len);
-}
-
-int	put_char(char c)
-{
-	return ((int)write(1, &c, (int)1));
-}
-
-int	put_n_chars(char c, int n)
-{
-	int	cnt;
-
-	cnt = 0;
-	while (cnt < n)
-		cnt += put_char(c);
-	return (cnt);
-}
-
-int	put_n_str(char *str, int n)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] != '\0' && i < n)
-		put_char(str[i++]);
-	return (n);
-}
+#include "libft.h"
 
 int	convert_str(t_conversion *conv, char *str)
 {
@@ -54,94 +30,94 @@ int	convert_str(t_conversion *conv, char *str)
 		spacescnt = conv->min_width - slen;
 	convlen = 0;
 	if (conv->flag_minus)
-		convlen += put_n_chars(' ', spacescnt);
-	convlen += put_n_str(str, slen);
+		convlen += (int)ft_putnchars(' ', spacescnt);
+	convlen += (int)ft_putnstr(str, (size_t)slen);
 	if (!conv->flag_minus)
-		convlen += put_n_chars(' ', spacescnt);
+		convlen += (int)ft_putnchars(' ', spacescnt);
 	return (convlen);
 }
 
 // tests:
 
-t_conversion	*new_conversion(char specifier)
-{
-	t_conversion	*conv;
+// t_conversion	*new_conversion(char specifier)
+// {
+// 	t_conversion	*conv;
 
-	conv = malloc(sizeof(t_conversion));
-	conv->specifier = specifier;
-	conv->precision = 1;
-	conv->min_width = 0;
-	conv->flag_hash = 0;
-	conv->flag_zero = 0;
-	conv->flag_minus = 0;
-	conv->flag_space = 0;
-	conv->flag_plus = 0;
-	conv->flag_period = 0;
-	return (conv);
-}
+// 	conv = malloc(sizeof(t_conversion));
+// 	conv->specifier = specifier;
+// 	conv->precision = 1;
+// 	conv->min_width = 0;
+// 	conv->flag_hash = 0;
+// 	conv->flag_zero = 0;
+// 	conv->flag_minus = 0;
+// 	conv->flag_space = 0;
+// 	conv->flag_plus = 0;
+// 	conv->flag_period = 0;
+// 	return (conv);
+// }
 
-int	main(void)
-{
-    t_conversion	*conv;
-    char			*str;
+// int	main(void)
+// {
+//     t_conversion	*conv;
+//     char			*str;
 
-    str = "lorem ipsum";
+//     str = "lorem ipsum";
 
-	conv = new_conversion('s');
-	convert_str(conv, str); // "lorem ipsum"
-	write(1, "\n", 1);
-	free(conv);
+// 	conv = new_conversion('s');
+// 	convert_str(conv, str); // "lorem ipsum"
+// 	write(1, "\n", 1);
+// 	free(conv);
 
-	conv = new_conversion('s');
-	conv->min_width = 15;
-	convert_str(conv, str); // "lorem ipsum    "
-	write(1, "\n", 1);
-	free(conv);
+// 	conv = new_conversion('s');
+// 	conv->min_width = 15;
+// 	convert_str(conv, str); // "lorem ipsum    "
+// 	write(1, "\n", 1);
+// 	free(conv);
 
-	conv = new_conversion('s');
-	conv->min_width = 15;
-	conv->flag_minus = 1;
-	convert_str(conv, str); // "    lorem ipsum"
-	write(1, "\n", 1);
-	free(conv);
+// 	conv = new_conversion('s');
+// 	conv->min_width = 15;
+// 	conv->flag_minus = 1;
+// 	convert_str(conv, str); // "    lorem ipsum"
+// 	write(1, "\n", 1);
+// 	free(conv);
 
-	conv = new_conversion('s');
-	conv->flag_period = 1;
-	conv->precision = 0;
-	convert_str(conv, str); // ""
-	write(1, "\n", 1);
-	free(conv);
+// 	conv = new_conversion('s');
+// 	conv->flag_period = 1;
+// 	conv->precision = 0;
+// 	convert_str(conv, str); // ""
+// 	write(1, "\n", 1);
+// 	free(conv);
 
-	conv = new_conversion('s');
-	conv->flag_period = 1;
-	conv->precision = 5;
-	convert_str(conv, str); // "lorem"
-	write(1, "\n", 1);
-	free(conv);
+// 	conv = new_conversion('s');
+// 	conv->flag_period = 1;
+// 	conv->precision = 5;
+// 	convert_str(conv, str); // "lorem"
+// 	write(1, "\n", 1);
+// 	free(conv);
 
-	conv = new_conversion('s');
-	conv->flag_period = 1;
-	conv->precision = 1;
-	convert_str(conv, str); // "l"
-	write(1, "\n", 1);
-	free(conv);
+// 	conv = new_conversion('s');
+// 	conv->flag_period = 1;
+// 	conv->precision = 1;
+// 	convert_str(conv, str); // "l"
+// 	write(1, "\n", 1);
+// 	free(conv);
 
-	conv = new_conversion('s');
-	conv->min_width = 5;
-	conv->flag_period = 1;
-	conv->precision = 1;
-	convert_str(conv, str); // "l    "
-	write(1, "\n", 1);
-	free(conv);
+// 	conv = new_conversion('s');
+// 	conv->min_width = 5;
+// 	conv->flag_period = 1;
+// 	conv->precision = 1;
+// 	convert_str(conv, str); // "l    "
+// 	write(1, "\n", 1);
+// 	free(conv);
 
-	conv = new_conversion('s');
-	conv->min_width = 5;
-	conv->flag_minus = 1;
-	conv->flag_period = 1;
-	conv->precision = 1;
-	convert_str(conv, str); // "    l"
-	write(1, "\n", 1);
-	free(conv);
+// 	conv = new_conversion('s');
+// 	conv->min_width = 5;
+// 	conv->flag_minus = 1;
+// 	conv->flag_period = 1;
+// 	conv->precision = 1;
+// 	convert_str(conv, str); // "    l"
+// 	write(1, "\n", 1);
+// 	free(conv);
 
-	return (0);
-}
+// 	return (0);
+// }

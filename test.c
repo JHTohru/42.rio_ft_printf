@@ -1,93 +1,26 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   convert_hex.c                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/20 13:36:00 by jmenezes          #+#    #+#             */
-/*   Updated: 2022/08/20 19:13:40 by jmenezes         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include <stdio.h>
 
-#include "conversion.h"
-#include "libft.h"
-#include <stdlib.h>
+int ft_printf(char *fmt, ...);
 
-int	cnt_leading_spaces(t_conversion *conv, int nbrlen);
-int	cnt_leading_zeroes(t_conversion *conv, int nbrlen, int digitslen);
-int	cnt_trailing_spaces(t_conversion *conv, int nbrlen);
-
-int	convert_hex(t_conversion *conv, unsigned int u)
+int assert_int_equals(int want, int got)
 {
-	char	*digits;
-	int		convlen;
-	int		nbrlen;
-	int		zcnt;
-
-	if (conv->specifier == 'x')
-		digits = ft_utoa_base(u, BASESET_HEXL);
-	else
-		digits = ft_utoa_base(u, BASESET_HEXU);
-	if (digits == NULL)
-		return (-1);
-	nbrlen = (int)ft_strlen(digits);
-	if (conv->flag_hash)
-		nbrlen += 2;
-	zcnt = cnt_leading_zeroes(conv, nbrlen, (int)ft_strlen(digits));
-	convlen = (int)ft_putnchars(' ', cnt_leading_spaces(conv, nbrlen + zcnt));
-	if (conv->flag_hash && conv->specifier == 'x')
-		convlen += (int)ft_putstr("0x");
-	else if (conv->flag_hash)
-		convlen += (int)ft_putstr("0X");
-	convlen += (int)ft_putnchars('0', zcnt);
-	convlen += (int)ft_putstr(digits);
-	free(digits);
-	convlen += (int)ft_putnchars(' ', cnt_trailing_spaces(conv, nbrlen + zcnt));
-	return (convlen);
+    if (got != want)
+        fprintf(stderr, "wanted %d got %d\n", want, got);
+    return (got == want);
 }
 
-// tests:
+int test_ft_printf(char *want, char *fmt, ...)
+{}
 
-// t_conversion	*new_conversion(char specifier)
-// {
-// 	t_conversion	*conv;
-
-// 	conv = malloc(sizeof(t_conversion));
-// 	conv->specifier = specifier;
-// 	conv->precision = 1;
-// 	conv->min_width = 0;
-// 	conv->flag_hash = 0;
-// 	conv->flag_zero = 0;
-// 	conv->flag_minus = 0;
-// 	conv->flag_space = 0;
-// 	conv->flag_plus = 0;
-// 	conv->flag_period = 0;
-// 	return (conv);
-// }
-
-// int	main(void)
-// {
-//     t_conversion	*conv;
-//     unsigned int    u;
-
-//     u = 3735928559;
-
-// 	conv = new_conversion('x');
-// 	convert_hex(conv, u); // "deadbeef"
-// 	write(1, "\n", 1);
-// 	free(conv);
-
-// 	conv = new_conversion('x');
-//     conv->flag_hash = 1;
-// 	convert_hex(conv, u); // "0xdeadbeef"
-// 	write(1, "\n", 1);
-// 	free(conv);
-
-// 	conv = new_conversion('x');
-// 	conv->min_width = 13;
-// 	convert_hex(conv, u); // "     deadbeef"
-// 	write(1, "\n", 1);
+int main(void)
+{
+    assert_int_equals(1, ft_printf("%c", 'x')); // "x"
+	assert_int_equals(5, ft_printf("%5c", 'x')); // "x    "
+	assert_int_equals(5, ft_printf("%-5c", 'x')); // "    x"
+    assert_int_equals(8, ft_printf("%x", 3735928559)); // "deadbeef"
+    assert_int_equals(10, ft_printf("%#x", 3735928559)); // "0xdeadbeef"
+    assert_int_equals(13, ft_printf("%13x", 3735928559)); // "     deadbeef"
+    assert_int_equals(13, ft_printf("%-13x", 3735928559)); // "deadbeef     "
 
 // 	conv = new_conversion('x');
 // 	conv->min_width = 13;
@@ -261,3 +194,6 @@ int	convert_hex(t_conversion *conv, unsigned int u)
 
 // 	return (0);
 // }
+
+	return (0);
+}

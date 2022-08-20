@@ -1,31 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   convert_char.c                                     :+:      :+:    :+:   */
+/*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/20 13:35:18 by jmenezes          #+#    #+#             */
-/*   Updated: 2022/08/20 17:05:04 by jmenezes         ###   ########.fr       */
+/*   Created: 2022/08/20 16:58:16 by jmenezes          #+#    #+#             */
+/*   Updated: 2022/08/20 16:59:07 by jmenezes         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "conversion.h"
 #include "libft.h"
 
-int	convert_char(t_conversion *conv, char c)
+int	ft_atoi(const char *nbr)
 {
-	int	convlen;
-	int	spacescnt;
+	int			sign;
+	long int	n;
 
-	spacescnt = 0;
-	if (conv->min_width > 1)
-		spacescnt += conv->min_width - 1;
-	convlen = 0;
-	if (conv->flag_minus)
-		convlen += (int)ft_putnchars(' ', spacescnt);
-	convlen += (int)ft_putchar(c);
-	if (!conv->flag_minus)
-		convlen += (int)ft_putnchars(' ', spacescnt);
-	return (convlen);
+	while (ft_isspace(*nbr))
+		nbr++;
+	sign = 1;
+	if (*nbr == '+' || *nbr == '-')
+	{
+		if (*nbr == '-')
+			sign = -1;
+		nbr++;
+	}
+	n = 0;
+	while (ft_isdigit(*nbr))
+	{
+		n = n * 10 + (*nbr - '0') * sign;
+		if (sign == -1 && n > 0)
+			return (0);
+		else if (sign == 1 && n < 0)
+			return (-1);
+		nbr++;
+	}
+	return (n);
 }

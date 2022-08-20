@@ -1,10 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   conversion.h                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/20 18:56:57 by jmenezes          #+#    #+#             */
+/*   Updated: 2022/08/20 18:57:04 by jmenezes         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef CONVERSION_H
 # define CONVERSION_H
 # define BASESET_DEC "0123456789"
-# define BASESET_HEXL BASESET_DEC "abcdef"
-# define BASESET_HEXU BASESET_DEC "ABCDEF"
-
-// todo: field width and precision could be of size_t type
+# define BASESET_HEXL "0123456789abcdef"
+# define BASESET_HEXU "0123456789ABCDEF"
 
 typedef struct s_conversion {
 	char			specifier;

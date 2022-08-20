@@ -1,31 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   convert_char.c                                     :+:      :+:    :+:   */
+/*   ft_putchar_fd.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/20 13:35:18 by jmenezes          #+#    #+#             */
-/*   Updated: 2022/08/20 17:05:04 by jmenezes         ###   ########.fr       */
+/*   Created: 2022/08/20 16:36:42 by jmenezes          #+#    #+#             */
+/*   Updated: 2022/08/20 17:36:11 by jmenezes         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "conversion.h"
-#include "libft.h"
+#include <unistd.h>
 
-int	convert_char(t_conversion *conv, char c)
+ssize_t	ft_putchar_fd(char c, int fd)
 {
-	int	convlen;
-	int	spacescnt;
-
-	spacescnt = 0;
-	if (conv->min_width > 1)
-		spacescnt += conv->min_width - 1;
-	convlen = 0;
-	if (conv->flag_minus)
-		convlen += (int)ft_putnchars(' ', spacescnt);
-	convlen += (int)ft_putchar(c);
-	if (!conv->flag_minus)
-		convlen += (int)ft_putnchars(' ', spacescnt);
-	return (convlen);
+	return (write(fd, &c, 1));
 }

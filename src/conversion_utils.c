@@ -1,74 +1,63 @@
-#include "libft.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   conversion_utils.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/20 18:52:58 by jmenezes          #+#    #+#             */
+/*   Updated: 2022/08/20 18:55:22 by jmenezes         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int	ft_abs(int n)
+#include "conversion.h"
+#include <stdlib.h>
+
+int	cnt_leading_spaces(t_conversion *conv, int nbrlen)
 {
-	if (n < 0)
-		return (-n);
-	return (n);
+	if (conv->min_width > nbrlen
+		&& !conv->flag_minus
+		&& (!conv->flag_zero || conv->flag_period))
+		return (conv->min_width - nbrlen);
+	return (0);
 }
 
-int	write_chars(char *str, int c, int n)
+int	cnt_leading_zeroes(t_conversion *conv, int nbrlen, int digitslen)
 {
-	ft_memset((void *)str, c, (size_t)n);
-	return (n);
+	if (conv->min_width > nbrlen
+		&& conv->flag_zero
+		&& !conv->flag_period
+		&& !conv->flag_minus)
+		return (conv->min_width - nbrlen);
+	else if (conv->flag_period
+		&& conv->precision > digitslen)
+		return (conv->precision - digitslen);
+	return (0);
 }
 
-unsigned int	upow(unsigned int b, unsigned int e)
+int	cnt_trailing_spaces(t_conversion *conv, int nbrlen)
 {
-	unsigned int	p;
+	if (conv->flag_minus && conv->min_width > nbrlen)
+		return (conv->min_width - nbrlen);
+	return (0);
+}
 
-	p = 1;
-	while (e != 0)
+t_conversion	*new_conversion(void)
+{
+	t_conversion	*conv;
+
+	conv = malloc(sizeof(t_conversion));
+	if (conv != NULL)
 	{
-		p *= b;
-		e--;
+		conv->specifier = '\0';
+		conv->precision = 0;
+		conv->min_width = 0;
+		conv->flag_hash = 0;
+		conv->flag_zero = 0;
+		conv->flag_minus = 0;
+		conv->flag_space = 0;
+		conv->flag_plus = 0;
+		conv->flag_period = 0;
 	}
-	return (p);
-}
-
-unsigned int	ulog(unsigned int n, unsigned int b)
-{
-	unsigned int	lg;
-
-	lg = 0;
-	while (n > b)
-	{
-		n /= b;
-		lg++;
-	}
-	return(lg);
-}
-
-int	uwrite(char *str, unsigned int n, char *baseset)
-{
-	unsigned int	mag;
-	unsigned int	rad;
-	int		i;
-
-	i = 0;
-	rad = (unsigned int)ft_strlen(baseset);
-	mag = upow(rad, ulog(n, rad));
-	while (1)
-	{
-		str[i++] = baseset[n / mag];
-		n %= mag;
-		mag /= rad;
-		if (mag == 0)
-			break ;
-	}
-	return (i);
-}
-
-int	udigits(unsigned int n, int r) // esse nome não é muito bom.
-{
-	int	cnt;
-
-	cnt = 0;
-	while (1)
-	{
-		cnt++;
-		n /= (unsigned int)r;
-		if (n == 0)
-			return (cnt);
-	}
+	return (conv);
 }

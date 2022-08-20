@@ -1,164 +1,111 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_printf.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/20 18:57:14 by jmenezes          #+#    #+#             */
+/*   Updated: 2022/08/20 19:06:34 by jmenezes         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "conversion.h"
 #include "libft.h"
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
 
-typedef struct s_convspec {
-	char			specifier;
-	int				precision;
-	int				width_min;
-	unsigned char	flag_hash: 1;
-	unsigned char	flag_zero: 1;
-	unsigned char	flag_minus: 1;
-	unsigned char	flag_space: 1;
-	unsigned char	flag_plus: 1;
-	unsigned char	flag_dot: 1;
-}	t_convspec;
+int				convert_char(t_conversion *conv, char c);
+int				convert_str(t_conversion *conv, char *str);
+int				convert_int(t_conversion *conv, int i);
+int				convert_uint(t_conversion *conv, unsigned int u);
+int				convert_hex(t_conversion *conv, unsigned int u);
+int				convert_ptr(t_conversion *conv, void *p);
+int				is_flag(char c);
+int				is_conversion(const char *str);
+t_conversion	*new_conversion(void);
 
-int	convert_number(char **str, t_convspec *cs, int d);
-
-unsigned int	ft_upow(unsigned int b, unsigned int e)
+static void	parse_conversion_flags(t_conversion *conv, const char **str)
 {
-	int	n;
-
-	n = 1;
-	while (e > 0)
+	while (is_flag(**str))
 	{
-		n *= b;
-		e--;
+		if (**str == '#')
+			conv->flag_hash = 1;
+		else if (**str == '+')
+			conv->flag_plus = 1;
+		else if (**str == '-')
+			conv->flag_minus = 1;
+		else if (**str == '0')
+			conv->flag_zero = 1;
+		else if (**str == ' ')
+			conv->flag_space = 1;
+		(*str)++;
 	}
-	return (n);
 }
 
-int	isflag(char c)
+static t_conversion	*extract_conversion(const char **str)
 {
-	return (c == '#'
-		|| c == '+'
-		|| c == '-'
-		|| c == '0'
-		|| c == ' ');
-}
+	t_conversion	*conv;
 
-int	isspecifier(char c)
-{
-	return (c == 'c'
-		|| c == 's'
-		|| c == 'p'
-		|| c == 'd'
-		|| c == 'i'
-		|| c == 'u'
-		|| c == 'x'
-		|| c == 'X');		
-}
-
-// todo: modify the following function to be used by str_to_convspec as a
-//       validator to avoid allocation memory just for a substr duplication
-char	*extract_convspec_str(const char *str)
-{
-	size_t	len;
-
-	if (*str != '%')
-		return (NULL);
-	str++;
-	len = 0;
-	while (isflag(str[len]))
-		len++;
-	while (ft_isdigit(str[len]))
-		len++;
-	if (str[len] == '.')
-		len++;
-	while (ft_isdigit(str[len]))
-		len++;
-	if (!isspecifier(str[len]))
-		return (NULL);
-	len++;
-	return (ft_strndup(str, len));
-}
-
-t_convspec	*str_to_convspec(char *str)
-{
-	t_convspec	*cs;
-
-	cs = ft_calloc(1, sizeof(t_convspec));
-	if (cs != NULL)
+	conv = new_conversion();
+	if (conv != NULL)
 	{
-		while (isflag(*str))
-		{
-			if (*str == '#')
-				cs->flag_hash = 1;
-			else if (*str == '+')
-				cs->flag_plus = 1;
-			else if (*str == '-')
-				cs->flag_minus = 1;
-			else if (*str == '0')
-				cs->flag_zero = 1;
-			else if (*str == ' ')
-				cs->flag_space = 1;
-			str++;
-		}
-		if (ft_isdigit(*str))
-			cs->width_min = ft_atoi(str);
-		while (ft_isdigit(*str))
-			str++;
-		if (*str == '.')
-			cs->flag_dot = 1;
-		if (ft_isdigit(*str))
-			cs->precision = ft_atoi(str);
-		while (ft_isdigit(*str))
-			str++;
-		cs->specifier = *str;
+		(*str)++;
+		parse_conversion_flags(conv, str);
+		if (ft_isdigit(**str))
+			conv->min_width = ft_atoi(*str);
+		while (ft_isdigit(**str))
+			(*str)++;
+		if (**str == '.')
+			conv->flag_period = 1;
+		if (ft_isdigit(**str))
+			conv->precision = ft_atoi(*str);
+		while (ft_isdigit(**str))
+			(*str)++;
+		conv->specifier = *((*str)++);
 	}
-	return (cs);
+	return (conv);
 }
 
-int	put_number_conversion(t_convspec *cs, int n, int fd)
+static int	eval_conversion(t_conversion *conv, va_list ap)
 {
-	char	*str;
-	int		len;
-
-	len = convert_number(&str, cs, n);
-	ft_putstr_fd(str, fd);
-	free(str);
-	return (len);
+	if (conv->specifier == 'c')
+		return (convert_char(conv, va_arg(ap, int)));
+	if (conv->specifier == 's')
+		return (convert_str(conv, va_arg(ap, char *)));
+	if (conv->specifier == 'i' || conv->specifier == 'd')
+		return (convert_int(conv, va_arg(ap, int)));
+	if (conv->specifier == 'u')
+		return (convert_uint(conv, va_arg(ap, unsigned int)));
+	if (conv->specifier == 'x' || conv->specifier == 'X')
+		return (convert_hex(conv, va_arg(ap, unsigned int)));
+	if (conv->specifier == 'p')
+		return (convert_ptr(conv, va_arg(ap, void *)));
+	return ((int)ft_putchar('%'));
 }
 
-int	ft_vdprintf(int fd, const char *fmt, va_list ap)
+static int	vdprintf(const char *fmt, va_list ap)
 {
-	int			cnt;
-	char		*cstr;
-	t_convspec	*cs;
+	int				cnt;
+	int				i;
+	t_conversion	*conv;
 
 	cnt = 0;
 	while (*fmt != '\0')
 	{
-		if (*fmt == '%')
+		if (is_conversion(fmt))
 		{
-			cstr = extract_convspec_str(fmt);
-			if (cstr != NULL)
-			{
-				int	len;
-
-				cs = str_to_convspec(cstr);
-				free(cstr);
-				// if (cs->specifier == 'c')
-				// 	cnt += put_char_conversion(str, cs);
-				// if (cs->specifier == 's')
-				// 	cnt += put_string_conversion(str, cs);
-				// if (cs->specifier == 'p')
-				// 	cnt += put_pointer_conversion(str, cs);
-				// else // "diuxX"
-					len = put_number_conversion(cs, va_arg(ap, int), fd);
-				free(cs);
-				cnt += len;
-				fmt += len + 1;
-				continue ;
-			}
-			if (fmt[1] == '%')
-				fmt++;
+			conv = extract_conversion(&fmt);
+			if (conv == NULL)
+				return (-1);
+			i = eval_conversion(conv, ap);
+			free(conv);
+			if (i == -1)
+				return (-1);
+			cnt += i;
 		}
-		ft_putchar_fd(*fmt, fd);
-		cnt++;
-		fmt++;
+		else
+			cnt += (int)ft_putchar(*(fmt++));
 	}
 	return (cnt);
 }
@@ -169,7 +116,7 @@ int	ft_printf(const char *fmt, ...)
 	int		res;
 
 	va_start(ap, fmt);
-	res = ft_vdprintf(1, fmt, ap);
+	res = vdprintf(fmt, ap);
 	va_end(ap);
 	return (res);
 }

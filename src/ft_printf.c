@@ -6,7 +6,7 @@
 /*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 18:57:14 by jmenezes          #+#    #+#             */
-/*   Updated: 2022/08/20 19:06:34 by jmenezes         ###   ########.fr       */
+/*   Updated: 2022/08/22 13:51:15 by jmenezes         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,24 +67,24 @@ static t_conversion	*extract_conversion(const char **str)
 	return (conv);
 }
 
-static int	eval_conversion(t_conversion *conv, va_list ap)
+static int	eval_conversion(t_conversion *conv, va_list *ap)
 {
 	if (conv->specifier == 'c')
-		return (convert_char(conv, va_arg(ap, int)));
+		return (convert_char(conv, va_arg(*ap, int)));
 	if (conv->specifier == 's')
-		return (convert_str(conv, va_arg(ap, char *)));
+		return (convert_str(conv, va_arg(*ap, char *)));
 	if (conv->specifier == 'i' || conv->specifier == 'd')
-		return (convert_int(conv, va_arg(ap, int)));
+		return (convert_int(conv, va_arg(*ap, int)));
 	if (conv->specifier == 'u')
-		return (convert_uint(conv, va_arg(ap, unsigned int)));
+		return (convert_uint(conv, va_arg(*ap, unsigned int)));
 	if (conv->specifier == 'x' || conv->specifier == 'X')
-		return (convert_hex(conv, va_arg(ap, unsigned int)));
+		return (convert_hex(conv, va_arg(*ap, unsigned int)));
 	if (conv->specifier == 'p')
-		return (convert_ptr(conv, va_arg(ap, void *)));
+		return (convert_ptr(conv, va_arg(*ap, void *)));
 	return ((int)ft_putchar('%'));
 }
 
-static int	vdprintf(const char *fmt, va_list ap)
+static int	vdprintf(const char *fmt, va_list *ap)
 {
 	int				cnt;
 	int				i;
@@ -116,7 +116,8 @@ int	ft_printf(const char *fmt, ...)
 	int		res;
 
 	va_start(ap, fmt);
-	res = vdprintf(fmt, ap);
+	res = vdprintf(fmt, &ap);
 	va_end(ap);
+	// ft_putchar('\0');
 	return (res);
 }

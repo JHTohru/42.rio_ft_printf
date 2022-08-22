@@ -14,9 +14,6 @@ OBJS := $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 all: $(NAME)
 
-foo:
-	echo $(SRCS)
-
 $(NAME): $(LIBFT) $(OBJS)
 	@mv $(LIBFT) $@
 	@ar -r $@ $(OBJS)

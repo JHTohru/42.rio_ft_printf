@@ -139,14 +139,12 @@ int	main(int argc, char *argv[])
 		TEST("%d %p", 42, NULL);
 		TEST("%d %d %d", 10, 20, 30);
 		TEST("%d %d %d", 10, 20, 30);
-		TEST("%d %s %d", 10, "foobaru", 20);
+		TEST("%d %s %d", 10, "fubaru", 20);
 		TEST("%s", "lorem ipsum");
-		TEST("%s", "%.#deliberate_FATAL_ERROR");
+		TEST("%s", "%.#deliberate_error");
 	}
 
 	LOG("%d/%d tests have succeeded\n", tests_cnt - fail_cnt, tests_cnt);
 
-	if (fail_cnt == 0)
-		return (0);
-	return (1);
+	return (fail_cnt == 0 ? 0 : 1);
 }

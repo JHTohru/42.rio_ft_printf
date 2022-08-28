@@ -1,4 +1,5 @@
 CC := cc
+CFLAGS := -Wno-format
 NAME := test
 BIN_DIR := bin
 PRINTF_DIR := ..

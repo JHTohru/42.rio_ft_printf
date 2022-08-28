@@ -6,7 +6,7 @@
 /*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 18:57:14 by jmenezes          #+#    #+#             */
-/*   Updated: 2022/08/22 13:51:15 by jmenezes         ###   ########.fr       */
+/*   Updated: 2022/08/22 19:01:00 by jmenezes         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,10 @@ static t_conversion	*extract_conversion(const char **str)
 		while (ft_isdigit(**str))
 			(*str)++;
 		if (**str == '.')
+		{
 			conv->flag_period = 1;
+			(*str)++;
+		}
 		if (ft_isdigit(**str))
 			conv->precision = ft_atoi(*str);
 		while (ft_isdigit(**str))
@@ -118,6 +121,5 @@ int	ft_printf(const char *fmt, ...)
 	va_start(ap, fmt);
 	res = vdprintf(fmt, &ap);
 	va_end(ap);
-	// ft_putchar('\0');
 	return (res);
 }

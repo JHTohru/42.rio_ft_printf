@@ -6,7 +6,7 @@
 /*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/20 17:33:09 by jmenezes          #+#    #+#             */
-/*   Updated: 2022/08/20 18:43:39 by jmenezes         ###   ########.fr       */
+/*   Updated: 2022/08/22 21:36:36 by jmenezes         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,15 @@ int		ft_abs(int n);
 
 int		ft_atoi(const char *nbr);
 
+void	ft_bzero(void *m, size_t n);
+
+void	*ft_calloc(size_t nmemb, size_t size);
+
 int		ft_isdigit(int c);
 
 int		ft_isspace(int c);
+
+void	*ft_memset(void *s, int c, size_t n);
 
 char	*ft_ptoa_base(uintptr_t p, char *baseset);
 

@@ -1,10 +1,12 @@
 CC := cc
 CFLAGS := -Wall -Wextra -Werror
+
+LIBFT_DIR := libft
+LIBFT_LIB := libft.a
+LIBFT := $(LIBFT_DIR)/$(LIBFT_LIB)
+
 NAME := libftprintf.a
 INC_DIR := inc
-LIBFT_DIR := libft
-LIBFT_FILE := libft.a
-LIBFT := $(LIBFT_DIR)/$(LIBFT_FILE)
 SRC_DIR := src
 SRC_FILES := conversion_utils.c convert_char.c convert_hex.c convert_int.c \
 	convert_ptr.c convert_str.c convert_uint.c ft_printf.c ft_printf2.c
@@ -27,7 +29,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 
 clean:
 	@make fclean -C $(LIBFT_DIR)
-	@rm -f $(OBJS)
+	@rm -rf $(OBJ_DIR)
 
 fclean: clean
 	@rm -f $(NAME)

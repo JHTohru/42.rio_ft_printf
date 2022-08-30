@@ -1,4 +1,5 @@
 #include "libftprintf.h"
+#include <dlfcn.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,26 @@
 #define LOG(fmt, args...) dprintf(stdout_backup, fmt, ##args)
 
 // reference: https://stackoverflow.com/a/35249468
+void	*(*system_malloc)(size_t) = NULL;
+void	(*system_free)(void *) = NULL;
+int		alloc_cnt = 0;
+int		free_cnt = 0;
+
+void	*malloc(size_t size)
+{
+	if (system_malloc == NULL)
+		system_malloc = dlsym(RTLD_NEXT, "malloc");
+	alloc_cnt++;
+	return system_malloc(size);
+}
+
+void    free(void *s)
+{
+	if (system_free == NULL)
+		system_free = dlsym(RTLD_NEXT, "free");
+	free_cnt++;
+	system_free(s);
+}
 
 int	main(int argc, char *argv[])
 {
@@ -389,6 +410,15 @@ int	main(int argc, char *argv[])
 		// conversions combinations
 		TEST("% -40.20d% 040.20d%+040.20d% -40.20i% 040.20i%+040.20i%40.20u%-40.20u%040.20u%40.20x%-40.20x%040.20x%40.20X%-40.20X%040.20X%-20.5s%20c",
 			42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, "lorem ipsum dolor sit amet", 'a');
+		TEST("alpha\n\t% -40.20dbravo\n\t% 040.20dcharlie\n\t%+040.20ddelta\n\t% -40.20iecho\n\t% 040.20ifoxtrot\n\t%+040.20igolf\n\t%40.20uhotel\n\t%-40.20uindia\n\t%040.20ujuliet\n\t%40.20xkilo\n\t%-40.20xlima\n\t%040.20xmike\n\t%40.20Xnovember\n\t%-40.20Xoscar\n\t%040.20Xpapa\n\t%-20.5squebec\n\t%20c\n\troger",
+			42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, "lorem ipsum dolor sit amet", 'a');
+	}
+
+	if (alloc_cnt != free_cnt)
+	{
+		if (fail_cnt > 0)
+			printf("\n\n");
+		printf("Memory leak:\nmalloc calls: %d\nfree calls  : %d\n", alloc_cnt, free_cnt);
 	}
 
 	LOG("%d/%d tests have succeeded\n", tests_cnt - fail_cnt, tests_cnt);

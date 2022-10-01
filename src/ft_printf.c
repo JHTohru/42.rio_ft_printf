@@ -12,6 +12,7 @@
 
 #include "conversion.h"
 #include "libft.h"
+#include <errno.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
@@ -20,7 +21,7 @@ int				convert_str(t_conversion *conv, char *str);
 int				convert_int(t_conversion *conv, int i);
 int				convert_uint(t_conversion *conv, unsigned int u);
 int				convert_hex(t_conversion *conv, unsigned int u);
-int				convert_ptr(t_conversion *conv, void *p);
+int				convert_ptr(t_conversion *conv, void *ptr);
 int				is_flag(char c);
 int				is_conversion(const char *str);
 t_conversion	*new_conversion(void);
@@ -118,6 +119,11 @@ int	ft_printf(const char *fmt, ...)
 	va_list	ap;
 	int		res;
 
+	if (fmt == NULL)
+	{
+		errno = EINVAL;
+		return (-1);
+	}
 	va_start(ap, fmt);
 	res = vdprintf(fmt, &ap);
 	va_end(ap);

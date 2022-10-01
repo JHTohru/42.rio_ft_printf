@@ -1,4 +1,7 @@
 #include "libftprintf.h"
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE
+#endif
 #include <dlfcn.h>
 #include <limits.h>
 #include <stdio.h>
@@ -109,6 +112,8 @@ int	main(int argc, char *argv[])
 	TEST("%c", 'a');
 	TEST("alpha: %c\nbravo: %c\ncharlie: %c", 'a', 'b', 'c');
 	TEST("%s", "\tlorem ipsum\n");
+	TEST("%s", NULL);
+	TEST("alpha: %s\nbravo:%s\ncharlie: %s\n", NULL, NULL, NULL);
 	TEST("\tlorem %s\n", "ipsum");
 	TEST("%p", NULL);
 	TEST("%p", (void *)1234567890);
@@ -164,6 +169,7 @@ int	main(int argc, char *argv[])
 		TEST("%10p", (void *)42);
 		TEST("%10c", 'a');
 		TEST("%10s", "foo");
+		TEST("%10s", NULL);
 		// A conversion which's field width value is equal to the converted
 		// value's length must be not modified.
 		TEST("%2d", 42);
@@ -177,6 +183,7 @@ int	main(int argc, char *argv[])
 		TEST("%2p", (void *)42);
 		TEST("%1c", 'a');
 		TEST("%3s", "foo");
+		TEST("%3s", NULL);
 		// A conversion which's field width value is less than the converted
 		// value's length must be not modified.
 		TEST("%1d", 42);
@@ -188,6 +195,7 @@ int	main(int argc, char *argv[])
 		TEST("%1X", 42);
 		TEST("%1p", (void *)42);
 		TEST("%1s", "foo");
+		TEST("%1s", NULL);
 
 
 		// . flag
@@ -230,15 +238,19 @@ int	main(int argc, char *argv[])
 		// A string conversion that specifies the . flag limits the number of
 		// written characters to its precision value.
 		TEST("%.5s", "lorem ipsum");
+		TEST("%.5s", NULL);
 		// A string conversion that specifies the . flag and which's precision
 		// value is zero writes no character.
 		TEST("%.0s", "lorem ipsum");
+		TEST("%.0s", NULL);
 		// A string conversion that specifies the . flag and which's precision
 		// value is greater than the string length must not be modified. 
 		TEST("%.20s", "lorem ipsum");
-		// A string conversion that specifiest the . flag and which's precision
+		TEST("%.20s", NULL);
+		// A string conversion that specifies the . flag and which's precision
 		// value is equal to the string length must not be modified.
 		TEST("%.11s", "lorem ipsum");
+		TEST("%.11s", NULL);
 		// A conversion that specifies the . flag but don't explicitly specifies
 		// a precision has a precision value of zero.
 		TEST("%.d", 0);
@@ -247,6 +259,7 @@ int	main(int argc, char *argv[])
 		TEST("%.x", 0);
 		TEST("%.X", 0);
 		TEST("%.s", "lorem ipsum");
+		TEST("%.s", NULL);
 
 
 		// - flag
@@ -265,6 +278,7 @@ int	main(int argc, char *argv[])
 		TEST("%-10p", (void *)42);
 		TEST("%-10c", 'a');
 		TEST("%-10s", "foo");
+		TEST("%-10s", NULL);
 		// A conversion that specifies a - flag but which's field width value is
 		// equal to the converted value's length must be not modified.
 		TEST("%-2d", 42);
@@ -278,6 +292,7 @@ int	main(int argc, char *argv[])
 		TEST("%-2p", (void *)42);
 		TEST("%-1c", 'a');
 		TEST("%-3s", "foo");
+		TEST("%-3s", NULL);
 		// A conversion that specifies a - flag but which's field width value is
 		// less than the converted value's length must be not modified.
 		TEST("%-1d", 42);
@@ -289,6 +304,7 @@ int	main(int argc, char *argv[])
 		TEST("%-1X", 42);
 		TEST("%-1p", (void *)42);
 		TEST("%-1s", "foo");
+		TEST("%-1s", NULL);
 
 
 		// 0 flag
@@ -408,10 +424,10 @@ int	main(int argc, char *argv[])
 		TEST("%040.20X", 42);
 
 		// conversions combinations
-		TEST("% -40.20d% 040.20d%+040.20d% -40.20i% 040.20i%+040.20i%40.20u%-40.20u%040.20u%40.20x%-40.20x%040.20x%40.20X%-40.20X%040.20X%-20.5s%20c",
-			42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, "lorem ipsum dolor sit amet", 'a');
-		TEST("alpha\n\t% -40.20dbravo\n\t% 040.20dcharlie\n\t%+040.20ddelta\n\t% -40.20iecho\n\t% 040.20ifoxtrot\n\t%+040.20igolf\n\t%40.20uhotel\n\t%-40.20uindia\n\t%040.20ujuliet\n\t%40.20xkilo\n\t%-40.20xlima\n\t%040.20xmike\n\t%40.20Xnovember\n\t%-40.20Xoscar\n\t%040.20Xpapa\n\t%-20.5squebec\n\t%20c\n\troger",
-			42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, "lorem ipsum dolor sit amet", 'a');
+		TEST("%s % -40.20d% 040.20d%+040.20d% -40.20i% 040.20i%+040.20i%40.20u%-40.20u%040.20u%40.20x%-40.20x%040.20x%40.20X%-40.20X%040.20X%-20.5s%20c",
+			NULL, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, "lorem ipsum dolor sit amet", 'a');
+		TEST("%s alpha\n\t% -40.20dbravo\n\t% 040.20dcharlie\n\t%+040.20ddelta\n\t% -40.20iecho\n\t% 040.20ifoxtrot\n\t%+040.20igolf\n\t%40.20uhotel\n\t%-40.20uindia\n\t%040.20ujuliet\n\t%40.20xkilo\n\t%-40.20xlima\n\t%040.20xmike\n\t%40.20Xnovember\n\t%-40.20Xoscar\n\t%040.20Xpapa\n\t%-20.5squebec\n\t%20c\n\troger",
+			NULL, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, "lorem ipsum dolor sit amet", 'a');
 	}
 
 	if (alloc_cnt != free_cnt)

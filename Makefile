@@ -17,22 +17,23 @@ OBJS := $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 all: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJS)
-	@mv $(LIBFT) $@
-	@ar -r $@ $(OBJS)
+	cp $(LIBFT) ./
+	mv $(LIBFT_LIB) $@
+	ar -r $@ $(OBJS)
 
 $(LIBFT):
-	@make all -C $(LIBFT_DIR)
+	make all -C $(LIBFT_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
-	@$(CC) $(CFLAGS) -c -I $(LIBFT_DIR) -I $(INC_DIR) -o $@ $<
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c -I $(LIBFT_DIR) -I $(INC_DIR) -I ./ -o $@ $<
 
 clean:
-	@make fclean -C $(LIBFT_DIR)
-	@rm -rf $(OBJ_DIR)
+	make fclean -C $(LIBFT_DIR)
+	rm -rf $(OBJ_DIR)
 
 fclean: clean
-	@rm -f $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
 

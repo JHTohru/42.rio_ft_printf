@@ -15,6 +15,14 @@
 # define BASESET_DEC "0123456789"
 # define BASESET_HEXL "0123456789abcdef"
 # define BASESET_HEXU "0123456789ABCDEF"
+# define NULL_STR "(null)"
+# if __APPLE__
+#  define NULL_PTR "0x0"
+# elif __unix__
+#  define NULL_PTR "(nil)"
+# else
+#  define NULL_PTR NULL_STR
+# endif
 
 typedef struct s_conversion {
 	char			specifier;

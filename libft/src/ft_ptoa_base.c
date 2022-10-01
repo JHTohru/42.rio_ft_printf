@@ -12,11 +12,14 @@
 
 #include "libft.h"
 #include <stdlib.h>
+# include <stdint.h>
 
-static int	nbrlen(uintptr_t p, uintptr_t rad)
+static int	nbrlen(void *ptr, uintptr_t rad)
 {
-	uintptr_t	i;
+	int 		i;
+	uintptr_t	p;
 
+	p = (uintptr_t)ptr;
 	i = 0;
 	while (1)
 	{
@@ -27,14 +30,16 @@ static int	nbrlen(uintptr_t p, uintptr_t rad)
 	}
 }
 
-char	*ft_ptoa_base(uintptr_t p, char *baseset)
+char	*ft_ptoa_base(void *ptr, char *baseset)
 {
 	char		*str;
 	int			i;
+	uintptr_t	p;
 	uintptr_t	rad;
 
+	p = (uintptr_t)ptr;
 	rad = (uintptr_t)ft_strlen(baseset);
-	i = nbrlen(p, rad);
+	i = nbrlen(ptr, rad);
 	str = malloc(i + 1);
 	if (str != NULL)
 	{

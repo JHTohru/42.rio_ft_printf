@@ -10,19 +10,21 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
 #include "conversion.h"
+#include "libft.h"
 #include <stdint.h>
 #include <stdlib.h>
 
-int	convert_ptr(t_conversion *conv, uintptr_t p)
+int	convert_ptr(t_conversion *conv, void *ptr)
 {
 	char	*digits;
 	int		convlen;
 	int		nbrlen;
 	int		spacescnt;
 
-	digits = ft_ptoa_base(p, BASESET_HEXL);
+	if (ptr == NULL)
+		return (ft_putstr(NULL_PTR));
+	digits = ft_ptoa_base(ptr, BASESET_HEXL);
 	if (digits == NULL)
 		return (-1);
 	nbrlen = (int)ft_strlen(digits) + 2;

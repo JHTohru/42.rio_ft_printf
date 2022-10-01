@@ -19,6 +19,8 @@ int	convert_str(t_conversion *conv, char *str)
 	int	slen;
 	int	spacescnt;
 
+	if (str == NULL)
+		return (ft_putstr(NULL_STR));
 	slen = 0;
 	if (conv->flag_period)
 		while (str[slen] != '\0' && slen < conv->precision)

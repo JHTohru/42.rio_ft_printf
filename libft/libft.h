@@ -12,7 +12,6 @@
 
 #ifndef LIBFT_H
 # define LIBFT_H
-
 # include <sys/types.h>
 
 int		ft_abs(int n);
@@ -29,7 +28,7 @@ int		ft_isspace(int c);
 
 void	*ft_memset(void *s, int c, size_t n);
 
-char	*ft_ptoa_base(uintptr_t p, char *baseset);
+char	*ft_ptoa_base(void *ptr, char *baseset);
 
 ssize_t	ft_putchar_fd(char c, int fd);
 

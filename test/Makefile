@@ -12,7 +12,7 @@ SRCS := $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 all: $(NAME)
 
 $(NAME): $(SRCS) $(PRINTF_LIB)
-	@$(CC) $(CFLAGS) -I $(PRINTF_DIR) -o $@ $^
+	@$(CC) $(CFLAGS) -I $(PRINTF_DIR) -o $@ $^ -ldl
 
 $(PRINTF_LIB):
 	@make all -C $(PRINTF_DIR)

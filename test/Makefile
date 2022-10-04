@@ -3,6 +3,7 @@ CFLAGS := -Wno-format
 NAME := test
 BIN_DIR := bin
 PRINTF_DIR := ..
+BONUS_DIR := $(PRINTF_DIR)/bonus
 PRINTF_FILE := libftprintf.a
 PRINTF_LIB := $(PRINTF_DIR)/$(PRINTF_FILE)
 SRC_DIR := src
@@ -16,6 +17,7 @@ $(NAME): $(SRCS) $(PRINTF_LIB)
 
 $(PRINTF_LIB):
 	@make all -C $(PRINTF_DIR)
+	@#make bonus -C $(PRINTF_DIR)
 
 clean:
 	@rm -f $(NAME)

@@ -12,11 +12,11 @@
 
 #include "libft.h"
 #include <stdlib.h>
-# include <stdint.h>
+#include <stdint.h>
 
 static int	nbrlen(void *ptr, uintptr_t rad)
 {
-	int 		i;
+	int			i;
 	uintptr_t	p;
 
 	p = (uintptr_t)ptr;

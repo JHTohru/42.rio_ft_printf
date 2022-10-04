@@ -1,0 +1,39 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   conversion.h                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jmenezes <jmenezes@student.42.rio>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/20 18:56:57 by jmenezes          #+#    #+#             */
+/*   Updated: 2022/08/20 18:57:04 by jmenezes         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef CONVERSION_BONUS_H
+# define CONVERSION_BONUS_H
+# define BASESET_DEC "0123456789"
+# define BASESET_HEXL "0123456789abcdef"
+# define BASESET_HEXU "0123456789ABCDEF"
+# define NULL_STR "(null)"
+# if __APPLE__
+#  define NULL_PTR "0x0"
+# elif __unix__
+#  define NULL_PTR "(nil)"
+# else
+#  define NULL_PTR NULL_STR
+# endif
+
+typedef struct s_conversion {
+	char			specifier;
+	int				precision;
+	int				min_width;
+	unsigned char	flag_hash: 1;
+	unsigned char	flag_zero: 1;
+	unsigned char	flag_minus: 1;
+	unsigned char	flag_space: 1;
+	unsigned char	flag_plus: 1;
+	unsigned char	flag_period: 1;
+}	t_conversion;
+
+#endif

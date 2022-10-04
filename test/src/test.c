@@ -1,4 +1,5 @@
 #include "libftprintf.h"
+//#include "libftprintf_bonus.h"
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
 #endif
@@ -238,7 +239,7 @@ int	main(int argc, char *argv[])
 		// A string conversion that specifies the . flag limits the number of
 		// written characters to its precision value.
 		TEST("%.5s", "lorem ipsum");
-		TEST("%.5s", NULL);
+		TEST("%.6s", NULL);
 		// A string conversion that specifies the . flag and which's precision
 		// value is zero writes no character.
 		TEST("%.0s", "lorem ipsum");
